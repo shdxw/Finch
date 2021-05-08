@@ -17,9 +17,12 @@ public class MoveThread implements Runnable {
 
     @Override
     public void run() {
+        int turn_light = 75; //параметр для поворота
+        int move_light = 75; //параметр для езды
+
         while (true) {
             try {
-                listOfLights = exchanger.exchange(null); //get(0) левый, get(1) правый сенсоры
+                listOfLights = exchanger.exchange(null);
                 System.out.println(listOfLights);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -27,19 +30,22 @@ public class MoveThread implements Runnable {
             int left_light = listOfLights.get(0);
             int right_light = listOfLights.get(1);
 
-            //эту хуйню убрать и сделать функции поворота и движения в зависимости от данных с датчиков
-            //но в целом принцип типо такого (значения датчиков около 10 вечером с тусклым светом, днем где-то 40 будет)
-            if (left_light > 100 || right_light > 100) {
+            if (Math.abs(left_light - right_light) >= turn_light ) {
 
                 if (left_light > right_light) {
 
-                    myFinch.setWheelVelocities(0, 100);
+                    myFinch.setWheelVelocities(-255, 255, 100);
 
                 } else {
-                    myFinch.setWheelVelocities(100, 0);
+                    myFinch.setWheelVelocities(255, -255, 100);
 
                 }
+            } else if (left_light >= move_light || right_light >= move_light) {
+
+                myFinch.setWheelVelocities(255, 255, 100);
+
             }
+
 
         }
     }
